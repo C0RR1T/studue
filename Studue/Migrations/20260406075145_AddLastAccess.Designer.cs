@@ -10,7 +10,7 @@ using Studue;
 
 namespace StudueSharp.Migrations
 {
-    [DbContext(typeof(StudueContext))]
+    [DbContext(typeof(DatabaseContext))]
     [Migration("20260406075145_AddLastAccess")]
     partial class AddLastAccess
     {

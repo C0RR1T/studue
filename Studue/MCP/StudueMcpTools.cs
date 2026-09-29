@@ -10,7 +10,7 @@ namespace Studue.MCP;
 [McpServerToolType]
 public class StudueMcpTools(
     StudentContext studentContext,
-    StudueContext studueContext,
+    DatabaseContext databaseContext,
     AssignmentService assignmentService
 )
 {
@@ -203,7 +203,7 @@ public class StudueMcpTools(
                 var created = models
                     .Select(model => assignmentService.Create(student, model))
                     .ToList();
-                await studueContext.SaveChangesAsync();
+                await databaseContext.SaveChangesAsync();
 
                 return created.Select(ToDto).ToList();
             },
@@ -255,7 +255,7 @@ public class StudueMcpTools(
                 };
 
                 assignmentService.Update(assignment, Student, model);
-                await studueContext.SaveChangesAsync();
+                await databaseContext.SaveChangesAsync();
 
                 return ToDto(assignment);
             },
@@ -275,7 +275,7 @@ public class StudueMcpTools(
                 var assignment = await LoadAssignment(id);
 
                 assignmentService.Delete(assignment, Student);
-                await studueContext.SaveChangesAsync();
+                await databaseContext.SaveChangesAsync();
 
                 return $"Deleted assignment {id} '{assignment.Title}'";
             },
@@ -298,7 +298,7 @@ public class StudueMcpTools(
         var student = Student;
         var semester = Helper.GetCurrentSemester();
 
-        return studueContext
+        return databaseContext
             .Assignements.Where(x =>
                 x.ModuleInstance.Students.Contains(student)
                 && x.ModuleInstance.Semester == semester

@@ -41,7 +41,7 @@ try
     builder.Services.AddScoped<StudentContext>();
     builder.Services.AddScoped<AssignmentService>();
     builder.Services.AddScoped<SemesterService>();
-    builder.Services.AddDbContextFactory<StudueContext>(
+    builder.Services.AddDbContextFactory<DatabaseContext>(
         (services, options) =>
         {
             options.UseSqlite(
@@ -136,7 +136,7 @@ try
 
     using (var scope = app.Services.CreateScope())
     {
-        var db = scope.ServiceProvider.GetRequiredService<StudueContext>();
+        var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 
         db.Database.Migrate();
     }
@@ -300,7 +300,7 @@ try
             "/settings/refetchSchedule",
             async (
                 StudentContext studentContext,
-                StudueContext studueContext,
+                DatabaseContext databaseContext,
                 SemesterService semesterService
             ) =>
             {
@@ -310,7 +310,7 @@ try
                 var success = await studentContext.FetchModulesForStudent(studentContext.Student);
                 if (success)
                 {
-                    await studueContext.SaveChangesAsync();
+                    await databaseContext.SaveChangesAsync();
 
                     // the home page only reads the cached week list, so this is where it gets filled
                     await semesterService.RefreshWeeks(Helper.GetCurrentSemester());
@@ -349,7 +349,7 @@ try
             async (
                 int assignmentId,
                 bool completed,
-                StudueContext studueContext,
+                DatabaseContext databaseContext,
                 StudentContext studentContext,
                 ILogger<Program> logger
             ) =>
@@ -357,7 +357,7 @@ try
                 if (!studentContext.HasWriteAccess)
                     return Results.Unauthorized();
 
-                var assignment = await studueContext
+                var assignment = await databaseContext
                     .Assignements.Include(x => x.CompletedByStudents)
                     .FirstOrDefaultAsync(x => x.Id == assignmentId);
                 if (assignment == null)
@@ -380,7 +380,7 @@ try
                     );
                     assignment.CompletedByStudents.Remove(studentContext.Student);
                 }
-                await studueContext.SaveChangesAsync();
+                await databaseContext.SaveChangesAsync();
 
                 return Results.Ok();
             }
@@ -391,15 +391,15 @@ try
     // so they must be able to get rid of them
     app.MapPost(
             "/banner/{bannerId:int}/dismiss",
-            async (int bannerId, StudueContext studueContext, StudentContext studentContext) =>
+            async (int bannerId, DatabaseContext databaseContext, StudentContext studentContext) =>
             {
                 var studentId = studentContext.Student.Id;
 
-                var banner = await studueContext.Banners.FirstOrDefaultAsync(x => x.Id == bannerId);
+                var banner = await databaseContext.Banners.FirstOrDefaultAsync(x => x.Id == bannerId);
                 if (banner == null)
                     return Results.NotFound();
 
-                await studueContext
+                await databaseContext
                     .Entry(banner)
                     .Collection(x => x.DismissedByStudents)
                     .Query()
@@ -413,11 +413,11 @@ try
 
                 try
                 {
-                    await studueContext.SaveChangesAsync();
+                    await databaseContext.SaveChangesAsync();
                 }
                 catch (DbUpdateException)
                 {
-                    var dismissed = await studueContext.Banners.AnyAsync(x =>
+                    var dismissed = await databaseContext.Banners.AnyAsync(x =>
                         x.Id == bannerId && x.DismissedByStudents.Any(s => s.Id == studentId)
                     );
                     if (!dismissed)
@@ -442,13 +442,13 @@ try
 
     app.MapPost(
             "/rotateToken",
-            async (HttpContext http, StudentContext studentContext, StudueContext studueContext) =>
+            async (HttpContext http, StudentContext studentContext, DatabaseContext databaseContext) =>
             {
                 http.Response.Cookies.Delete("student_id", IdentityCookie());
                 http.Response.Cookies.Delete("write_token", IdentityCookie());
 
                 studentContext.Student.WriteToken = StudentContext.GenerateWriteToken();
-                await studueContext.SaveChangesAsync();
+                await databaseContext.SaveChangesAsync();
 
                 return Results.Ok();
             }

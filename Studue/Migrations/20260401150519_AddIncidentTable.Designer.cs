@@ -11,7 +11,7 @@ using StudueSharp;
 
 namespace StudueSharp.Migrations
 {
-    [DbContext(typeof(StudueContext))]
+    [DbContext(typeof(DatabaseContext))]
     [Migration("20260401150519_AddIncidentTable")]
     partial class AddIncidentTable
     {

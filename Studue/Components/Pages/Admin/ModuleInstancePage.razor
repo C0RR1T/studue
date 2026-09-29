@@ -4,7 +4,7 @@
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.EntityFrameworkCore
 @layout AdminLayout
-@inject StudueContext StudueContext;
+@inject DatabaseContext DatabaseContext;
 @inject NavigationManager Navigation;
 @rendermode InteractiveServer
 
@@ -74,7 +74,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        var m = await StudueContext.ModuleInstances.Where(x => x.Id == InstanceId)
+        var m = await DatabaseContext.ModuleInstances.Where(x => x.Id == InstanceId)
             .Include(x => x.Students)
             .Include(x => x.Assignements)
             .Include(x => x.Module)

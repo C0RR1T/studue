@@ -1,5 +1,5 @@
 ﻿@inject StudentContext StudentContext
-@inject StudueContext StudueContext
+@inject DatabaseContext DatabaseContext
 @inject NavigationManager Navigation
 @attribute [StudentRequired(RequireWriteAccess = true)]
 
@@ -22,7 +22,7 @@
     {
         _modules = await StudentContext.GetStudentModules();
 
-        _selectedAssignment = await StudueContext.Assignements
+        _selectedAssignment = await DatabaseContext.Assignements
             .Include(x => x.ModuleInstance)
             .ThenInclude(x => x.Module)
             .FirstOrDefaultAsync(x => x.Id == Id

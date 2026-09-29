@@ -4,7 +4,7 @@
 @attribute [Authorize]
 @attribute [StudentRequired]
 @layout AdminLayout
-@inject StudueContext StudueContext;
+@inject DatabaseContext DatabaseContext;
 @rendermode InteractiveServer
 
 <section>
@@ -36,6 +36,6 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        _modules = await StudueContext.Modules.Include(x => x.ModuleInstances).ToListAsync();
+        _modules = await DatabaseContext.Modules.Include(x => x.ModuleInstances).ToListAsync();
     }
 }

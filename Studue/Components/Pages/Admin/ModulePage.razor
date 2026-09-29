@@ -5,7 +5,7 @@
 @attribute [Authorize]
 @attribute [StudentRequired]
 @layout AdminLayout
-@inject StudueContext StudueContext;
+@inject DatabaseContext DatabaseContext;
 @inject NavigationManager Navigation;
 
 <section>
@@ -59,12 +59,12 @@
             Assignements = _selectedInstances.SelectMany(x => x.Assignements).DistinctBy(x => x.Id).ToList(),
         };
 
-        StudueContext.RemoveRange(_selectedInstances);
-        StudueContext.Add(newCombinedInstance);
+        DatabaseContext.RemoveRange(_selectedInstances);
+        DatabaseContext.Add(newCombinedInstance);
 
         _selectedInstances.Clear();
 
-        await StudueContext.SaveChangesAsync();
+        await DatabaseContext.SaveChangesAsync();
 
         await FetchModule();
     }
@@ -84,7 +84,7 @@
 
     private async Task FetchModule()
     {
-        var m = await StudueContext.Modules.Where(x => x.Code == ModuleCode)
+        var m = await DatabaseContext.Modules.Where(x => x.Code == ModuleCode)
             .Include(x => x.ModuleInstances)
             .ThenInclude(x => x.Assignements)
             .Include(x => x.ModuleInstances)

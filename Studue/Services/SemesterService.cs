@@ -13,7 +13,7 @@ public sealed record SemesterWeek(DateOnly Start, DateOnly End);
 // the semester weeks come from.
 public partial class SemesterService(
     IHttpClientFactory clientFactory,
-    StudueContext context,
+    DatabaseContext context,
     ILogger<SemesterService> logger
 )
 {

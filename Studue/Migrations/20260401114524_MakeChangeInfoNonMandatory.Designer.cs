@@ -11,7 +11,7 @@ using StudueSharp;
 
 namespace StudueSharp.Migrations
 {
-    [DbContext(typeof(StudueContext))]
+    [DbContext(typeof(DatabaseContext))]
     [Migration("20260401114524_MakeChangeInfoNonMandatory")]
     partial class MakeChangeInfoNonMandatory
     {

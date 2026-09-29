@@ -2,7 +2,7 @@
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.EntityFrameworkCore
 @using Studue.Services
-@inject StudueContext StudueContext;
+@inject DatabaseContext DatabaseContext;
 @inject StudentContext StudentContext;
 @inject IJSRuntime JsRuntime
 @attribute [StudentRequired]
@@ -68,7 +68,7 @@
         var success = await StudentContext.FetchModulesForStudent(student);
         if (success)
         {
-            await StudueContext.SaveChangesAsync();
+            await DatabaseContext.SaveChangesAsync();
         }
         else
         {
@@ -78,12 +78,12 @@
 
     private async Task RefreshStudents()
     {
-        _students = await StudueContext.Students.ToListAsync();
+        _students = await DatabaseContext.Students.ToListAsync();
     }
 
     private async Task Changed()
     {
-        await StudueContext.SaveChangesAsync();
+        await DatabaseContext.SaveChangesAsync();
     }
 
     private async Task RegenerateToken(Student student)
@@ -92,7 +92,7 @@
         if (confirm)
         {
             student.WriteToken = StudentContext.GenerateWriteToken();
-            await StudueContext.SaveChangesAsync();
+            await DatabaseContext.SaveChangesAsync();
 
             await RefreshStudents();
         }

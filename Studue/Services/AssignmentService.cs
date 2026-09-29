@@ -2,7 +2,7 @@ namespace Studue.Services;
 
 public class AssignmentRuleException(string message) : Exception(message);
 
-public class AssignmentService(StudueContext context)
+public class AssignmentService(DatabaseContext context)
 {
     public Assignment Create(Student student, AssignmentModel model)
     {

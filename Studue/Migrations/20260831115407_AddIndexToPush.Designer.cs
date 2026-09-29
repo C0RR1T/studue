@@ -10,7 +10,7 @@ using Studue;
 
 namespace StudueSharp.Migrations
 {
-    [DbContext(typeof(StudueContext))]
+    [DbContext(typeof(DatabaseContext))]
     [Migration("20260831115407_AddIndexToPush")]
     partial class AddIndexToPush
     {

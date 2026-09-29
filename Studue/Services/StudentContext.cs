@@ -12,11 +12,11 @@ namespace Studue.Services;
 
 public class StudentContext(
     IHttpClientFactory clientFactory,
-    StudueContext context,
+    DatabaseContext context,
     ILogger<StudentContext> logger,
     IOptions<Settings> settings,
     IHostEnvironment environment,
-    IDbContextFactory<StudueContext> studueContextFactory
+    IDbContextFactory<DatabaseContext> studueContextFactory
 )
 {
     public Student Student { get; private set; } = null!;

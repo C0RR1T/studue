@@ -4,7 +4,7 @@
 @layout AdminLayout
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.EntityFrameworkCore
-@inject StudueContext StudueContext;
+@inject DatabaseContext DatabaseContext;
 @rendermode InteractiveServer
 
 <section>
@@ -32,6 +32,6 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        _pushSubscriptions = await StudueContext.PushSubscriptions.Include(x => x.Student).ToListAsync();
+        _pushSubscriptions = await DatabaseContext.PushSubscriptions.Include(x => x.Student).ToListAsync();
     }
 }

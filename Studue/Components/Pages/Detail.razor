@@ -6,7 +6,7 @@
 @layout Layout.StudentLayout
 
 @inject StudentContext StudentContext
-@inject StudueContext StudueContext
+@inject DatabaseContext DatabaseContext
 @inject NavigationManager Navigation
 @attribute [StudentRequired]
 
@@ -76,7 +76,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var assignment = await StudueContext.Assignements
+        var assignment = await DatabaseContext.Assignements
             .Include(x => x.ModuleInstance)
             .ThenInclude(x => x.Module)
             .Include(x => x.CreatedBy)

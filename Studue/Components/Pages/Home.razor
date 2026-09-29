@@ -4,7 +4,7 @@
 @using System.Globalization
 @using Microsoft.EntityFrameworkCore
 @using Studue.Services
-@inject StudueContext StudueContext
+@inject DatabaseContext DatabaseContext
 @inject StudentContext StudentContext
 @inject SemesterService SemesterService
 
@@ -180,7 +180,7 @@ else
 
         var currentSemester = Helper.GetCurrentSemester();
 
-        _totalAssignmentCount = await StudueContext.Assignements.CountAsync(x => x.ModuleInstance.Students.Contains(StudentContext.Student) && !x.IsDeleted && x.ModuleInstance.Semester == currentSemester);
+        _totalAssignmentCount = await DatabaseContext.Assignements.CountAsync(x => x.ModuleInstance.Students.Contains(StudentContext.Student) && !x.IsDeleted && x.ModuleInstance.Semester == currentSemester);
         _assignments = await GetAssignments(ShowOverdue ? DateTime.MinValue : Helper.Now().Date);
         _weeks = await SemesterService.GetCachedWeeks(currentSemester) ?? [];
     }
@@ -213,7 +213,7 @@ else
     async Task<List<Assignment>> GetAssignments(DateTime today)
     {
         var currentSemester = Helper.GetCurrentSemester();
-        return await StudueContext.Assignements
+        return await DatabaseContext.Assignements
             .Where(x => x.ModuleInstance.Students.Contains(StudentContext.Student) && !x.IsDeleted && x.DueDateTime >= today && x.ModuleInstance.Semester == currentSemester)
             .OrderBy(x => x.DueDateTime)
             .Include(x => x.CreatedBy)

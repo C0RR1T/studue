@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Studue;
 
-public class StudueContext(DbContextOptions<StudueContext> options) : DbContext(options)
+public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbContext(options)
 {
     public DbSet<Student> Students { get; set; }
     public DbSet<Module> Modules { get; set; }

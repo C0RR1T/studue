@@ -4,7 +4,7 @@
 @layout AdminLayout
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.EntityFrameworkCore
-@inject StudueContext StudueContext;
+@inject DatabaseContext DatabaseContext;
 @inject IJSRuntime JsRuntime
 @rendermode InteractiveServer
 
@@ -114,7 +114,7 @@
         //park every student who ever dismissed any banner in the circuit's change tracker for as
         //long as the page stays open. The banners themselves are still tracked entities, so the
         //Enabled checkbox and Delete keep working.
-        var rows = await StudueContext
+        var rows = await DatabaseContext
             .Banners.Select(x => new { Banner = x, Dismissals = x.DismissedByStudents.Count })
             .ToListAsync();
 
@@ -133,8 +133,8 @@
         _newBanner.Message = _newBanner.Message.Trim();
         _newBanner.CreatedAt = Helper.Now();
 
-        StudueContext.Banners.Add(_newBanner);
-        await StudueContext.SaveChangesAsync();
+        DatabaseContext.Banners.Add(_newBanner);
+        await DatabaseContext.SaveChangesAsync();
 
         _newBanner = NewBanner();
         _status = "Banner created.";
@@ -144,7 +144,7 @@
 
     private async Task Changed()
     {
-        await StudueContext.SaveChangesAsync();
+        await DatabaseContext.SaveChangesAsync();
     }
 
     private async Task Delete(Banner banner)
@@ -155,8 +155,8 @@
         if (!confirm)
             return;
 
-        StudueContext.Banners.Remove(banner);
-        await StudueContext.SaveChangesAsync();
+        DatabaseContext.Banners.Remove(banner);
+        await DatabaseContext.SaveChangesAsync();
 
         await Refresh();
     }

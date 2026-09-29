@@ -4,7 +4,7 @@
 @layout AdminLayout
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.EntityFrameworkCore
-@inject StudueContext StudueContext;
+@inject DatabaseContext DatabaseContext;
 @rendermode InteractiveServer
 
 <section>
@@ -43,7 +43,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        _editLogEntries = await StudueContext.EditLog.Include(x => x.Assignment)
+        _editLogEntries = await DatabaseContext.EditLog.Include(x => x.Assignment)
             .ThenInclude(x => x.ModuleInstance)
             .ThenInclude(x => x.Module)
             .Include(x => x.Student)
@@ -53,6 +53,6 @@
     private async Task UndoDelete(EditLogEntry editLogEntry)
     {
         editLogEntry.Assignment.IsDeleted = false;
-        await StudueContext.SaveChangesAsync();
+        await DatabaseContext.SaveChangesAsync();
     }
 }

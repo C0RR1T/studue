@@ -1,6 +1,6 @@
 ﻿@using Microsoft.EntityFrameworkCore
 @using Studue.Services
-@inject StudueContext studueContext
+@inject DatabaseContext DatabaseContext
 @inject StudentContext studentContext
 @inject AssignmentService assignmentService
 @inject NavigationManager Navigation
@@ -139,7 +139,7 @@
 
             assignmentService.Delete(assignmentToUpdate, studentContext.Student);
 
-            await studueContext.SaveChangesAsync();
+            await DatabaseContext.SaveChangesAsync();
             Navigation.NavigateTo("/");
         }
     }
@@ -172,7 +172,7 @@
         if (AssignmentToUpdate == null && studentContext.HasWriteAccess)
         {
             assignmentService.Create(studentContext.Student, AssignmentModel);
-            await studueContext.SaveChangesAsync();
+            await DatabaseContext.SaveChangesAsync();
 
             Navigation.NavigateTo("/");
         }
@@ -183,7 +183,7 @@
                 return;
 
             assignmentService.Update(AssignmentToUpdate, studentContext.Student, AssignmentModel);
-            await studueContext.SaveChangesAsync();
+            await DatabaseContext.SaveChangesAsync();
 
             Navigation.NavigateTo("/");
         }

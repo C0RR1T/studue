@@ -8,7 +8,7 @@
 @using Microsoft.Extensions.Options
 @using Studue.Services
 @rendermode InteractiveServer
-@inject StudueContext StudueContext;
+@inject DatabaseContext DatabaseContext;
 @inject IOptions<Settings> Settings;
 @inject ILogger<AdminPage> Logger;
 
@@ -74,18 +74,18 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        _studentCount = await StudueContext.Students.CountAsync();
-        _moduleCount = await StudueContext.Modules.CountAsync();
-        _moduleInstanceCount = await StudueContext.ModuleInstances.CountAsync();
-        _assignmentCount = await StudueContext.Assignements.CountAsync();
+        _studentCount = await DatabaseContext.Students.CountAsync();
+        _moduleCount = await DatabaseContext.Modules.CountAsync();
+        _moduleInstanceCount = await DatabaseContext.ModuleInstances.CountAsync();
+        _assignmentCount = await DatabaseContext.Assignements.CountAsync();
 
         var dayCutoff = DateTime.UtcNow.AddHours(-24);
-        _activeUsersInTheLast24Hours = await StudueContext.Students.Where(x => x.LastAccess > dayCutoff).CountAsync();
+        _activeUsersInTheLast24Hours = await DatabaseContext.Students.Where(x => x.LastAccess > dayCutoff).CountAsync();
         var weekCutoff = DateTime.Now.AddDays(-7);
-        _activeUsersInTheLastWeek = await StudueContext.Students.Where(x => x.LastAccess > weekCutoff).CountAsync();
+        _activeUsersInTheLastWeek = await DatabaseContext.Students.Where(x => x.LastAccess > weekCutoff).CountAsync();
 
         var semesterStart = Helper.GetCurrentSemesterStart();
-        var leaderboard = await StudueContext.EditLog
+        var leaderboard = await DatabaseContext.EditLog
             .Where(x => x.DateTime > semesterStart)
             .GroupBy(x => x.Student)
             .Select(x => new { Student = x.Key.StudentId, EditCount = x.Count() })

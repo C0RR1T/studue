@@ -7,7 +7,7 @@
 @using Microsoft.Extensions.Options
 @using Studue.MCP
 @using Studue.Services
-@inject StudueContext StudueContext
+@inject DatabaseContext DatabaseContext
 @inject StudentContext StudentContext
 @inject IOptions<Settings> Settings
 
@@ -106,7 +106,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _vapidPublicKey = (await StudueContext.Configs.FirstAsync(x => x.Id == "VapidKey.Public")).Data;
+        _vapidPublicKey = (await DatabaseContext.Configs.FirstAsync(x => x.Id == "VapidKey.Public")).Data;
 
         if (!StudentContext.HasWriteAccess)
             return;

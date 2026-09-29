@@ -4,7 +4,7 @@
 @layout AdminLayout
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.EntityFrameworkCore
-@inject StudueContext StudueContext;
+@inject DatabaseContext DatabaseContext;
 @rendermode InteractiveServer
 
 <section>
@@ -34,6 +34,6 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        _incidents = await StudueContext.Incidents.ToListAsync();
+        _incidents = await DatabaseContext.Incidents.ToListAsync();
     }
 }

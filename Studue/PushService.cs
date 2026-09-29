@@ -25,18 +25,18 @@ public class PushUnsubscribeDto
     public required string Endpoint { get; set; }
 }
 
-public class PushService(IDbContextFactory<StudueContext> contextFactory, IOptions<Settings> settings, ILogger<PushService> logger) : BackgroundService
+public class PushService(IDbContextFactory<DatabaseContext> contextFactory, IOptions<Settings> settings, ILogger<PushService> logger) : BackgroundService
 {
     public static void RegisterEndpoint(WebApplication webApplication)
     {
-        webApplication.MapPost("/push/subscribe", async ([FromBody] PushSubscriptionDto subscriptionDto, StudueContext studueContext, StudentContext studentContext) =>
+        webApplication.MapPost("/push/subscribe", async ([FromBody] PushSubscriptionDto subscriptionDto, DatabaseContext databaseContext, StudentContext studentContext) =>
         {
-            var existing = await studueContext.PushSubscriptions
+            var existing = await databaseContext.PushSubscriptions
                 .FirstOrDefaultAsync(x => x.Endpoint == subscriptionDto.Endpoint);
 
             if (existing == null)
             {
-                studueContext.PushSubscriptions.Add(new PushSubscriptionRow
+                databaseContext.PushSubscriptions.Add(new PushSubscriptionRow
                 {
                     Auth = subscriptionDto.Keys.Auth,
                     Endpoint = subscriptionDto.Endpoint,
@@ -51,14 +51,14 @@ public class PushService(IDbContextFactory<StudueContext> contextFactory, IOptio
                 existing.Student = studentContext.Student;
             }
 
-            await studueContext.SaveChangesAsync();
+            await databaseContext.SaveChangesAsync();
 
             return Results.Ok();
         }).WithMetadata(new StudentRequiredAttribute());
 
-        webApplication.MapPost("/push/unsubscribe", async ([FromBody] PushUnsubscribeDto unsubscribeDto, StudueContext studueContext, StudentContext studentContext) =>
+        webApplication.MapPost("/push/unsubscribe", async ([FromBody] PushUnsubscribeDto unsubscribeDto, DatabaseContext databaseContext, StudentContext studentContext) =>
         {
-            await studueContext.PushSubscriptions
+            await databaseContext.PushSubscriptions
                 .Where(x => x.Endpoint == unsubscribeDto.Endpoint && x.Student == studentContext.Student)
                 .ExecuteDeleteAsync();
 
@@ -89,15 +89,15 @@ public class PushService(IDbContextFactory<StudueContext> contextFactory, IOptio
         }
     }
 
-    private async Task SendNotifications(StudueContext studueContext)
+    private async Task SendNotifications(DatabaseContext databaseContext)
     {
-        var lastNotificationTimeConfig = await studueContext.Configs.FirstAsync(x => x.Id == "LastNotificationTime");
+        var lastNotificationTimeConfig = await databaseContext.Configs.FirstAsync(x => x.Id == "LastNotificationTime");
         var lastNotificationTime = DateTime.Parse(lastNotificationTimeConfig.Data, CultureInfo.InvariantCulture);
 
         var now = Helper.Now();
         lastNotificationTimeConfig.Data = now.ToString(CultureInfo.InvariantCulture);
 
-        var futureAssignments = await studueContext.Assignements
+        var futureAssignments = await databaseContext.Assignements
             .Include(x => x.ModuleInstance)
             .ThenInclude(x => x.Module)
             .Where(x => x.DueDateTime > now && !x.IsDeleted)
@@ -115,22 +115,22 @@ public class PushService(IDbContextFactory<StudueContext> contextFactory, IOptio
 
             foreach (var assignment in assignmentsToNotify)
             {
-                await SendAsync(studueContext, assignment, relevantTime.dueInString);
+                await SendAsync(databaseContext, assignment, relevantTime.dueInString);
             }
         }
     }
 
-    private async Task SendAsync(StudueContext studueContext, Assignment assignment, string dueIn)
+    private async Task SendAsync(DatabaseContext databaseContext, Assignment assignment, string dueIn)
     {
-        var subscriptions = await studueContext.Students
+        var subscriptions = await databaseContext.Students
             .Where(x => x.ModuleInstances.Any(y => y.Assignements.Contains(assignment)) && !x.CompletedAssignments.Contains(assignment))
             .SelectMany(x => x.PushSubscriptions)
             .ToListAsync();
 
         logger.LogInformation("Sending {0} notifications for '{1}' assignment", subscriptions.Count, assignment.Title);
 
-        var publicKey = await studueContext.Configs.FirstAsync(x => x.Id == "VapidKey.Public");
-        var privateKey = await studueContext.Configs.FirstAsync(x => x.Id == "VapidKey.Private");
+        var publicKey = await databaseContext.Configs.FirstAsync(x => x.Id == "VapidKey.Public");
+        var privateKey = await databaseContext.Configs.FirstAsync(x => x.Id == "VapidKey.Private");
 
         var vapidDetails = new VapidDetails(settings.Value.FrontendUrl, publicKey.Data, privateKey.Data);
 
@@ -160,7 +160,7 @@ public class PushService(IDbContextFactory<StudueContext> contextFactory, IOptio
                 catch (WebPushException ex) when (ex.StatusCode is System.Net.HttpStatusCode.Gone or System.Net.HttpStatusCode.NotFound)
                 {
                     logger.LogInformation("Dropping expired push subscription #{SubscriptionId} ({StatusCode})", sub.Id, ex.StatusCode);
-                    studueContext.PushSubscriptions.Remove(sub);
+                    databaseContext.PushSubscriptions.Remove(sub);
                 }
                 catch (Exception ex)
                 {
