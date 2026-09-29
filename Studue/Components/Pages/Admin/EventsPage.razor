@@ -1,0 +1,37 @@
+﻿@attribute [Authorize]
+@attribute [StudentRequired]
+@page "/admin/events"
+@layout AdminLayout
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.EntityFrameworkCore
+@inject DatabaseContext DatabaseContext;
+@rendermode InteractiveServer
+
+<section>
+    <h2>Incidents</h2>
+
+    <div>
+        <SortableTable TItem="Event" Items="_events" Columns="@([
+                                                                        new("DateTime", x => x.DateTime),
+                                                                        new("EventType", x => x.EventType),
+                                                                        new("Message", x => x.Message),
+                                                                    ])" InitialSortingColumn="DateTime" Ascending="false">
+            <RowTemplate Context="Event">
+                <tr>
+                    <td>@Event.DateTime</td>
+                    <td>@Event.EventType</td>
+                    <td>@Event.Message</td>
+                </tr>
+            </RowTemplate>
+        </SortableTable>
+    </div>
+</section>
+
+@code {
+    private List<Event> _events = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _events = await DatabaseContext.Events.ToListAsync();
+    }
+}

@@ -151,6 +151,13 @@
             ? new MarkupString($"We sent a sign-in link to {email} — check <a href=\"https://outlook.office.com\">outlook.office.com</a>.")
             : new MarkupString("We were unable to send you an email, try again later.");
 
+        DatabaseContext.Events.Add(new Event
+        {
+            EventType = "RequestingEditLink",
+            Message = $"{StudentContext.Student.StudentId} of {StudentContext.Student.Class} requested an edit link",
+            DateTime = DateTime.UtcNow
+        });
+
         disableAuthenticateButton = true;
         StudentContext.Student.LastAuthenticationMailSend = DateTime.UtcNow;
         await DatabaseContext.SaveChangesAsync();

@@ -1,5 +1,3 @@
-using System.Reflection.Metadata.Ecma335;
-using System.Security.Principal;
 using Microsoft.EntityFrameworkCore;
 
 // ReSharper disable EntityFramework.ModelValidation.UnlimitedStringLength
@@ -18,6 +16,7 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
     public DbSet<PushSubscriptionRow> PushSubscriptions { get; set; }
     public DbSet<Config> Configs { get; set; }
     public DbSet<Banner> Banners { get; set; }
+    public DbSet<Event> Events { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -40,8 +39,14 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
     }
 }
 
-//A banner promotes a newly shipped feature. Dismissal is per student rather than per browser,
-//so the promo does not come back on the next device the student signs in on.
+public class Event
+{
+    public int Id { get; set; }
+    public required string EventType { get; set; }
+    public required string Message { get; set; }
+    public required DateTime DateTime { get; set; }
+}
+
 public class Banner
 {
     public int Id { get; set; }

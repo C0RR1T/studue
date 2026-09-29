@@ -469,6 +469,13 @@ public class StudentContext(
         if (!success)
             return null;
 
+        context.Events.Add(new Event
+        {
+            EventType = "StudentSignup",
+            Message = $"{newStudent.StudentId} of class {newStudent.Class} signed up",
+            DateTime = DateTime.UtcNow
+        });
+
         await context.SaveChangesAsync();
 
         await SendMail(
