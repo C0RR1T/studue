@@ -105,7 +105,7 @@ public class StudueMcpTools(
                             .EndTimeOf(slot.StartTime, slot.Duration)
                             .ToString("HH:mm"),
                         slot.ModuleCode,
-                        slot.Entries[0].Module.Name,
+                        slot.Entries.First().Module.Name,
                         JoinDistinct(slot.Entries.Select(x => x.Room)),
                         JoinDistinct(slot.Entries.Select(x => x.Teacher))
                     ))

@@ -92,7 +92,7 @@ public static class IcalService
                             {
                                 Uid =
                                     $"class-{semester}-{ids}-{date.Value:yyyyMMdd}@studue.ch",
-                                Summary = slot.Entries[0].Module.Name,
+                                Summary = slot.Entries.First().Module.Name,
                                 Description = string.Join(
                                     "\n",
                                     [

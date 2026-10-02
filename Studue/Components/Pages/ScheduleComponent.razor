@@ -48,7 +48,7 @@ else
                         @* the same lesson can run in several rooms at once; one card, every room *@
                         @foreach (var slot in ScheduleGrouping.GroupBySlot(entries))
                         {
-                            var lesson = slot.Entries[0];
+                            var lesson = slot.Entries.First();
 
                             <article class="schedule-entry-card"
                                      style="grid-row: @(ScheduleSlots.IndexOf(lesson.StartTime) - firstSlot + 2) / span @lesson.Duration; --accent: @accents[lesson.Module.Code];"
@@ -84,7 +84,7 @@ else
 
                     @foreach (var slot in ScheduleGrouping.GroupBySlot(entries))
                     {
-                        var lesson = slot.Entries[0];
+                        var lesson = slot.Entries.First();
 
                         <article class="schedule-agenda-item" style="--accent: @accents[lesson.Module.Code];">
                             <div class="schedule-agenda-time">
