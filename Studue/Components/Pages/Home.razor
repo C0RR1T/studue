@@ -182,7 +182,7 @@ else
 
         _totalAssignmentCount = await DatabaseContext.Assignements.CountAsync(x => x.ModuleInstance.Students.Contains(StudentContext.Student) && !x.IsDeleted && x.ModuleInstance.Semester == currentSemester);
         _assignments = await GetAssignments(ShowOverdue ? DateTime.MinValue : Helper.Now().Date);
-        _weeks = await SemesterService.GetCachedWeeks(currentSemester) ?? [];
+        _weeks = await SemesterService.GetWeeks(currentSemester) ?? [];
     }
 
     private record WeekGroup(int? Number, DateOnly Start, DateOnly End);
