@@ -99,7 +99,8 @@ public static class IcalService
                 // No time entered in the form is stored as midnight (see
                 // AssignmentService.SetValues defaulting to TimeOnly.MinValue),
                 // so 00:00 means "date only" and becomes an all-day event.
-                // All-day DTEND is exclusive per RFC 5545, hence +1 day.
+                // A DATE DTSTART without DTEND/DURATION is one day per RFC 5545,
+                // so no DTEND is emitted in that case.
                 var isAllDay = assignment.DueDateTime.TimeOfDay == TimeSpan.Zero;
                 var dueDate = DateOnly.FromDateTime(assignment.DueDateTime);
 
@@ -113,7 +114,7 @@ public static class IcalService
                             ? new CalDateTime(dueDate)
                             : new CalDateTime(assignment.DueDateTime, TimeZoneId),
                         End = isAllDay
-                            ? new CalDateTime(dueDate.AddDays(1))
+                            ? null
                             : new CalDateTime(
                                 assignment.DueDateTime.AddMinutes(30),
                                 TimeZoneId
