@@ -96,8 +96,8 @@ public static class IcalService
                                 Description = string.Join(
                                     "\n",
                                     [
-                                        $"Lehrer: {string.Join(", ", slot.Entries.Select(x => x.Teacher).Distinct(StringComparer.Ordinal))}",
-                                        $"Räume: {string.Join(" / ", slot.Entries.Select(x => x.Room).Distinct(StringComparer.Ordinal))}",
+                                        $"Teacher: {string.Join(", ", slot.Entries.Select(x => x.Teacher).Distinct(StringComparer.Ordinal))}",
+                                        $"Rooms: {string.Join(" / ", slot.Entries.Select(x => x.Room).Distinct(StringComparer.Ordinal))}",
                                     ]
                                 ),
                                 Location = string.Join(
