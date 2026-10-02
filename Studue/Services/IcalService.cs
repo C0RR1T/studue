@@ -95,7 +95,10 @@ public static class IcalService
                                 Summary = slot.Entries[0].Module.Name,
                                 Description = string.Join(
                                     "\n",
-                                    slot.Entries.Select(x => $"{x.Teacher}\n{x.Room}")
+                                    [
+                                        $"Lehrer: {string.Join(", ", slot.Entries.Select(x => x.Teacher).Distinct(StringComparer.Ordinal))}",
+                                        $"Räume: {string.Join(" / ", slot.Entries.Select(x => x.Room).Distinct(StringComparer.Ordinal))}",
+                                    ]
                                 ),
                                 Location = string.Join(
                                     " / ",
