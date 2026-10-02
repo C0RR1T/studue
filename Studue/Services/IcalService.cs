@@ -44,7 +44,9 @@ public static class IcalService
             Method = CalendarMethods.Publish,
             ProductId = "-//Studue//Class Schedule//DE",
         };
-        calendar.AddTimeZone(new VTimeZone(TimeZoneId));
+        calendar.AddTimeZone(
+            VTimeZone.FromDateTimeZone(TimeZoneId, new DateTime(2026, 1, 1), false)
+        );
 
         foreach (var moduleInstance in student.ModuleInstances)
         {
@@ -92,17 +94,28 @@ public static class IcalService
                 var assignment in moduleInstance.Assignements.Where(x => !x.IsDeleted)
             )
             {
+                // No time entered in the form is stored as midnight (see
+                // AssignmentService.SetValues defaulting to TimeOnly.MinValue),
+                // so 00:00 means "date only" and becomes an all-day event.
+                // All-day DTEND is exclusive per RFC 5545, hence +1 day.
+                var isAllDay = assignment.DueDateTime.TimeOfDay == TimeSpan.Zero;
+                var dueDate = DateOnly.FromDateTime(assignment.DueDateTime);
+
                 calendar.Events.Add(
                     new CalendarEvent
                     {
                         Uid = $"assignment-{assignment.Id}@studue.ch",
                         Summary = $"Assignment: {assignment.Title}",
                         Description = assignment.Description,
-                        Start = new CalDateTime(assignment.DueDateTime, TimeZoneId),
-                        End = new CalDateTime(
-                            assignment.DueDateTime.AddMinutes(30),
-                            TimeZoneId
-                        ),
+                        Start = isAllDay
+                            ? new CalDateTime(dueDate)
+                            : new CalDateTime(assignment.DueDateTime, TimeZoneId),
+                        End = isAllDay
+                            ? new CalDateTime(dueDate.AddDays(1))
+                            : new CalDateTime(
+                                assignment.DueDateTime.AddMinutes(30),
+                                TimeZoneId
+                            ),
                     }
                 );
             }
