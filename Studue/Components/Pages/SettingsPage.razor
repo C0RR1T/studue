@@ -51,6 +51,25 @@
     </p>
 </section>
 
+<section class="panel settings-section">
+    <h2>Calendar</h2>
+
+    <p class="settings-note">
+        Subscribe to your classes and assignments in your calendar app. It stays up to date on its own,
+        but how often it refreshes is up to the app.
+    </p>
+
+    <div class="settings-actions">
+        <a class="app-button app-button-primary" href="@_calendarWebcalUrl">Subscribe</a>
+        <a class="app-button app-button-secondary" href="@_calendarGoogleUrl" target="_blank" rel="noopener">Add to Google Calendar</a>
+        <a class="app-button app-button-secondary" href="@_calendarOutlookUrl" target="_blank" rel="noopener">Add to Outlook</a>
+        <button type="button" class="app-button app-button-secondary copy-calendar-link-button"
+                data-url="@_calendarUrl" onclick="copyCalendarLink()">Copy link</button>
+    </div>
+
+    <p class="calendar-link-status text-status" style="display: none" role="status"></p>
+</section>
+
 @if (StudentContext.HasWriteAccess)
 {
     <section class="panel settings-section">
@@ -103,10 +122,24 @@
     private string? _vapidPublicKey;
     private string? _mcpConfig;
     private string? _maskedMcpConfig;
+    private string? _calendarUrl;
+    private string? _calendarWebcalUrl;
+    private string? _calendarGoogleUrl;
+    private string? _calendarOutlookUrl;
 
     protected override async Task OnInitializedAsync()
     {
         _vapidPublicKey = (await DatabaseContext.Configs.FirstAsync(x => x.Id == "VapidKey.Public")).Data;
+
+        // webcal:// makes the OS hand the feed to the calendar app as a subscription,
+        // where an https link would just download a one-time snapshot
+        var calendarUri = new Uri(new Uri(Settings.Value.FrontendUrl), $"ical/{StudentContext.Student.StudentId}");
+        _calendarUrl = calendarUri.ToString();
+        _calendarWebcalUrl = $"webcal://{calendarUri.Authority}{calendarUri.PathAndQuery}";
+        // Google Calendar ignores webcal:// links, but takes the feed through its own add-by-url route
+        _calendarGoogleUrl = $"https://calendar.google.com/calendar/render?cid={Uri.EscapeDataString(_calendarWebcalUrl)}";
+        // office.com rather than live.com, since ZHAW accounts are Microsoft 365 work accounts
+        _calendarOutlookUrl = $"https://outlook.office.com/calendar/0/addfromweb?url={Uri.EscapeDataString(_calendarWebcalUrl)}";
 
         if (!StudentContext.HasWriteAccess)
             return;

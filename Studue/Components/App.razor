@@ -229,6 +229,22 @@
         status.style.display = "block";
     }
 
+    async function copyCalendarLink() {
+        const button = document.querySelector(".copy-calendar-link-button");
+        const status = document.querySelector(".calendar-link-status");
+        if (!button || !status) return;
+
+        try {
+            await navigator.clipboard.writeText(button.dataset.url);
+            status.textContent = "Copied. Add it in your calendar app as a subscription (\"From URL\").";
+        } catch (error) {
+            console.error(error);
+            status.textContent = "Could not copy the link. Please try again.";
+        }
+
+        status.style.display = "block";
+    }
+
     async function dismissBanner(bannerId) {
         document.getElementById(`banner-${bannerId}`)?.remove();
         await postWithToken(`/banner/${bannerId}/dismiss`);
