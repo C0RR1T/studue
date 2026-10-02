@@ -52,7 +52,7 @@ public static class IcalService
         {
             // Classes need semester weeks to be placed on real dates, assignments don't.
             // A missing week list must only skip the classes, never the assignments.
-            var weeks = await semesterService.GetCachedWeeks(moduleInstance.Semester);
+            var weeks = await semesterService.GetWeeks(moduleInstance.Semester);
             if (weeks is { Count: > 0 })
             {
                 foreach (var scheduleEntry in moduleInstance.ScheduleEntries)
