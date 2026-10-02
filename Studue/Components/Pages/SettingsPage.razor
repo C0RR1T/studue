@@ -138,8 +138,9 @@
         _calendarWebcalUrl = $"webcal://{calendarUri.Authority}{calendarUri.PathAndQuery}";
         // Google Calendar ignores webcal:// links, but takes the feed through its own add-by-url route
         _calendarGoogleUrl = $"https://calendar.google.com/calendar/render?cid={Uri.EscapeDataString(_calendarWebcalUrl)}";
-        // office.com rather than live.com, since ZHAW accounts are Microsoft 365 work accounts
-        _calendarOutlookUrl = $"https://outlook.office.com/calendar/0/addfromweb?url={Uri.EscapeDataString(_calendarWebcalUrl)}";
+        // office.com rather than live.com, since ZHAW accounts are Microsoft 365 work accounts.
+        // Outlook on the web fails to import a webcal:// url here, so it gets the https one
+        _calendarOutlookUrl = $"https://outlook.office.com/calendar/0/addfromweb?url={Uri.EscapeDataString(_calendarUrl)}";
 
         if (!StudentContext.HasWriteAccess)
             return;
