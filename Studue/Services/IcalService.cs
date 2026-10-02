@@ -15,7 +15,9 @@ public static class IcalService
 
     public static void RegisterEndpoint(WebApplication webApplication)
     {
-        webApplication.MapGet("/ical/{studentId}", Get);
+        // calendar servers may probe a subscription url with HEAD before fetching it;
+        // Kestrel drops the body for HEAD on its own
+        webApplication.MapMethods("/ical/{studentId}", ["GET", "HEAD"], Get);
     }
 
     private static async Task<IResult> Get(
