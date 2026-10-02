@@ -31,16 +31,20 @@ public partial class SemesterService(
         return await RefreshWeeks(semester);
     }
 
-    // for hot paths that must not wait on (or fail with) stundenplan.zhaw.ch
-    public async Task<List<SemesterWeek>?> GetCachedWeeks(string semester)
-    {
-        var config = await context.Configs.FirstOrDefaultAsync(x => x.Id == ConfigId(semester));
-        return config == null ? null : JsonSerializer.Deserialize<List<SemesterWeek>>(config.Data);
-    }
-
     public async Task<List<SemesterWeek>?> RefreshWeeks(string semester)
     {
-        var weeks = await FetchWeeks(semester);
+        List<SemesterWeek>? weeks;
+        try
+        {
+            weeks = await FetchWeeks(semester);
+        }
+        catch (Exception e) when (e is HttpRequestException or TaskCanceledException)
+        {
+            // callers include page renders, so an unreachable stundenplan.zhaw.ch must not throw
+            logger.LogWarning(e, "Fetching semester weeks for {semester} failed", semester);
+            return null;
+        }
+
         if (weeks == null)
             return null;
 
@@ -48,9 +52,14 @@ public partial class SemesterService(
 
         var config = await context.Configs.FirstOrDefaultAsync(x => x.Id == ConfigId(semester));
         if (config == null)
-            context.Configs.Add(new Config { Id = ConfigId(semester), Data = data });
+        {
+            config = new Config { Id = ConfigId(semester), Data = data };
+            context.Configs.Add(config);
+        }
         else
+        {
             config.Data = data;
+        }
 
         try
         {
@@ -58,6 +67,10 @@ public partial class SemesterService(
         }
         catch (DbUpdateException)
         {
+            // the context is scoped, so leaving the failed entity tracked would make every later
+            // SaveChanges in this request retry it
+            context.Entry(config).State = EntityState.Detached;
+
             // two requests can race into the same new semester; the row the other one wrote is
             // just as good as ours, and the weeks we return are unaffected either way
             logger.LogInformation(
@@ -74,6 +87,7 @@ public partial class SemesterService(
         logger.LogInformation("Fetching semester weeks for {semester}", semester);
 
         using var client = clientFactory.CreateClient();
+        client.Timeout = TimeSpan.FromSeconds(5);
 
         var response = await client.PostAsync(
             "https://stundenplan.zhaw.ch/",
