@@ -294,6 +294,7 @@ try
     app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
 
     PushService.RegisterEndpoint(app);
+    IcalService.RegisterEndpoint(app);
     StudueMcp.RegisterEndpoint(app);
 
     app.MapPost(
